@@ -24,9 +24,6 @@ reportRecipient = 'Harakou' #Username to which error reports should be sent
 wallpaperRegex = r"[0-9]+x[0-9]+"
 #End config variables
 
-username = "ponymotebot"
-subreddit = "harakouscssplayground"
-
 #init
 checked = []
 failed = []
