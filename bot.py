@@ -74,7 +74,7 @@ while True:
 
 				news = news.get_text()
 				news = news.replace("\t", "")
-				news = news + "---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | Source code will be on GitHub soon^TM)"
+				news = news + "---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
 				post.add_comment(news)
 				checked.append(post.id)
 				print("Success for " + post.url)
