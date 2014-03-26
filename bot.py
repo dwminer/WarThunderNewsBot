@@ -56,11 +56,11 @@ months = "(" + ")|(".join(months) + ")"
 dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
 
-def handleError(postID, errorMessage):
+def handleError(postID, errorMessage, err):
 	if postID not in failed:
 		print(errorMessage)
 		failed.append(postID)
-		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage
+		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage+ "\n\n" + str(err)
 		bot.send_message(reportRecipient, 'Error Report', errorReport) 
 
 #Main loop'
@@ -101,8 +101,8 @@ while True:
 				post.add_comment(news)
 				checked.append(post.id)
 				print("Success for " + post.url)
-			except error.HTTPError:
-				handleError(post.id, "Failed to fetch " + post.url + ", Reddit submission " + post.short_link)
-			except praw.errors.APIException:
-				handleError(post.id, "Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link)
+			except error.HTTPError as err:
+				handleError(post.id, "Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err)
+			except praw.errors.APIException as err:
+				handleError(post.id, "Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err)
 	time.sleep(120)
