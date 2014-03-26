@@ -1,10 +1,11 @@
+**About**
 Currently, this bot crawls /r/warthunder for news submissions from warthunder.com. Eventually, I hope to have it simply find news posts and post them itself as well.
 
 When it finds a news post, it fetches the article and scrapes it for text, links, images, and embedded content. This is then "translated" to the format of a Reddit comment and posted in the comments section.
 
 This probably isn't that useful in other contexts, but it can be configured to run on different user accounts and subreddits simply by changing the username and subreddit variables.
 
-TODO:
+**TODO:**
 Get the bot to posts news posts on its own.
-Find time/date text and link to corresponding time zone conversions from worldtimebuddy.com.
+Possibly make worldtimebuddy link include more useful timezones or even link to the time stated in the news post. (Regex is hard.)
 Possibly mirror forum posts as well? (Probably not until a much later revision)
