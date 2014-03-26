@@ -41,7 +41,7 @@ def handleError(postID, errorMessage):
 		print(errorMessage)
 		failed.append(postID)
 		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage
-#		bot.send_message(reportRecipient, 'Error Report', errorReport) #Disabled until bot accumulates enough karma to avoid captcha
+		bot.send_message(reportRecipient, 'Error Report', errorReport) 
 
 #Main loop'
 while True:
