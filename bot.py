@@ -22,7 +22,25 @@ imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
 reportRecipient = 'Harakou' #Username to which error reports should be sent
 wallpaperRegex = r"[0-9]+x[0-9]+"
+day = r"[0-9]{1,2}(st|nd|rd|th)"
+months = [
+	"January",
+	"February",
+	"March",
+	"April",
+	"May",
+	"June",
+	"July",
+	"August",
+	"September",
+	"October",
+	"November",
+	"December"]
 #End config variables
+
+#Var overrides for testing account/subreddit
+#username = "ponymotebot"
+#subreddit = "harakouscssplayground"
 
 #init
 checked = []
@@ -34,6 +52,8 @@ newsRegex = re.compile(newsRegex)
 imageRegex = re.compile(imageRegex)
 fullLinkRegex = re.compile(fullLinkRegex)
 wallpaperRegex = re.compile(wallpaperRegex)
+months = "(" + ")|(".join(months) + ")"
+dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
 
 def handleError(postID, errorMessage):
@@ -68,7 +88,10 @@ while True:
 					ytID = re.split(r"\W*", embed['src'])[5]
 					embed.replace_with("[Embed](http://www.youtube.com/watch/" + ytID + ")")
 				for text in news.find_all('strong'):
-					text.replace_with("**" + text.get_text().strip() + "**")
+					if dateRegex.match(text.get_text()):
+						text.replace_with("[**" + text.get_text().strip() + "**](http://www.worldtimebuddy.com/)")
+					else:
+						text.replace_with("**" + text.get_text().strip() + "**")
 				for text in news.find_all('em'):
 					text.replace_with("*" + text.get_text().strip() + "*") #Using strip() here occassionally results in some awkward spaceless text, but it makes sure that there are no trailing spaces that keep the bold marks from applying.
 
