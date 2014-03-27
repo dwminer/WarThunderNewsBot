@@ -7,5 +7,6 @@ This probably isn't that useful in other contexts, but it can be configured to r
 
 **TODO:**
 Get the bot to posts news posts on its own.
+Deal with long submissions that result in failed comments (break into multiple comments)
 Possibly make worldtimebuddy link include more useful timezones or even link to the time stated in the news post. (Regex is hard.)
 Possibly mirror forum posts as well? (Probably not until a much later revision)

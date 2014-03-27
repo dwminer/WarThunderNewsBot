@@ -86,7 +86,7 @@ while True:
 						link.replace_with("[" + link.get_text() + "](" + link['href'] + ")") #Converts HTML href tags to Reddit-style links
 				for embed in news.find_all('iframe'):
 					ytID = re.split(r"\W*", embed['src'])[5]
-					embed.replace_with("[Embed](http://www.youtube.com/watch/" + ytID + ")")
+					embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
 				for text in news.find_all('strong'):
 					if dateRegex.match(text.get_text()):
 						text.replace_with("[**" + text.get_text().strip() + "**](http://www.worldtimebuddy.com/)")
