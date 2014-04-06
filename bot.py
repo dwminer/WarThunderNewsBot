@@ -6,9 +6,7 @@ Reddit bot for transcribing news posts from Warthunder.com into comments
 Written by /u/Harakou
 """
 
-import praw
-import time
-import re
+import praw, time, re
 from urllib import request, error
 from bs4 import BeautifulSoup
 from requests import exceptions
