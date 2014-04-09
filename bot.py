@@ -90,11 +90,11 @@ while True:
 					embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
 				for text in news.find_all('strong'):
 					if dateRegex.match(text.get_text()):
-						text.replace_with("[**" + text.get_text().strip() + "**](http://www.worldtimebuddy.com/)")
+						text.replace_with("[**" + text.get_text().strip() + "* *](http://www.worldtimebuddy.com/)")
 					else:
-						text.replace_with("**" + text.get_text().strip() + "**")
+						text.replace_with("**" + text.get_text().strip() + "** ")
 				for text in news.find_all('em'):
-					text.replace_with("*" + text.get_text().strip() + "*") #Using strip() here occassionally results in some awkward spaceless text, but it makes sure that there are no trailing spaces that keep the bold marks from applying.
+					text.replace_with("* " + text.get_text().strip() + "*")
 
 				news = news.get_text()
 				news = news.replace("\t", "")
