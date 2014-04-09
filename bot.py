@@ -78,15 +78,22 @@ while True:
 
 				news.find('table', class_ = "share").decompose()
 				for image in news.find_all('img'):
+					imgURL = image['src']
+					imgURL = imgURL.replace("(", "\(")
+					imgURL = imgURL.replace(")", "\)")
 					if fullLinkRegex.match(image['src']):
-						image.replace_with("[Image](" + image['src'] + ")")
+						image.replace_with("[Image](" + imgURL + ")")
 					else:
-						image.replace_with("[Image](" + "http://warthunder.com" + image['src'] + ")") #Converts image tags to Reddit links
+						image.replace_with("[Image](" + "http://warthunder.com" + imgURL + ")") #Converts image tags to Reddit links
 				for link in news.select('a[href]'):
 					if not imageRegex.match(link['href']) or wallpaperRegex.match(link.get_text()):
-						link.replace_with("[" + link.get_text() + "](" + link['href'] + ")") #Converts HTML href tags to Reddit-style links
+						linkURL = link['href']
+						linkURL = linkURL.replace("(", "\(")
+						linkURL = linkURL.replace(")", "\)")
+						link.replace_with("[" + link.get_text() + "](" + linkURL + ")") #Converts HTML href tags to Reddit-style links
 				for embed in news.find_all('iframe'):
 					ytID = re.split(r"\W*", embed['src'])[5]
+					#It would probably be wise to actually make sure the embed link is a youtube link.
 					embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
 				for text in news.find_all('strong'):
 					if dateRegex.match(text.get_text()):
