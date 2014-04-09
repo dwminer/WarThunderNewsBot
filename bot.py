@@ -94,7 +94,7 @@ while True:
 					else:
 						text.replace_with("**" + text.get_text().strip() + "** ")
 				for text in news.find_all('em'):
-					text.replace_with("* " + text.get_text().strip() + "*")
+					text.replace_with("*" + text.get_text().strip() + "* ")
 
 				news = news.get_text()
 				news = news.replace("\t", "")
