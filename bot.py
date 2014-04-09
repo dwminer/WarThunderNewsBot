@@ -100,7 +100,7 @@ while True:
 				news = news.replace("\t", "")
 				news = news.replace("\r", "")
 				news = re.sub(newLineRegex, "\n\n>", news)
-				news = hoverViewStuff + news + "---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
+				news = hoverViewStuff + news + "\n\n---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
 				post.add_comment(news)
 				checked.append(post.id)
 				print("Success for " + post.url)
