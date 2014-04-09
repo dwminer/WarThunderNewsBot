@@ -18,6 +18,7 @@ subreddit = "warthunder"
 newsRegex = r"http://[www\.]*warthunder\.com/en/news/.+"
 imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
+newLineRegex = r"\n+"
 reportRecipient = 'Harakou' #Username to which error reports should be sent
 wallpaperRegex = r"[0-9]+x[0-9]+"
 day = r"[0-9]{1,2}(st|nd|rd|th)"
@@ -34,6 +35,7 @@ months = [
 	"October",
 	"November",
 	"December"]
+hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n---"
 #End config variables
 
 #Var overrides for testing account/subreddit
@@ -50,6 +52,7 @@ newsRegex = re.compile(newsRegex)
 imageRegex = re.compile(imageRegex)
 fullLinkRegex = re.compile(fullLinkRegex)
 wallpaperRegex = re.compile(wallpaperRegex)
+newLineRegex = re.compile(newLineRegex, re.M)
 months = "(" + ")|(".join(months) + ")"
 dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
@@ -95,7 +98,9 @@ while True:
 
 				news = news.get_text()
 				news = news.replace("\t", "")
-				news = news + "---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
+				news = news.replace("\r", "")
+				news = re.sub(newLineRegex, "\n\n>", news)
+				news = hoverViewStuff + news + "---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
 				post.add_comment(news)
 				checked.append(post.id)
 				print("Success for " + post.url)
