@@ -90,7 +90,7 @@ while True:
 					embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
 				for text in news.find_all('strong'):
 					if dateRegex.match(text.get_text()):
-						text.replace_with("[**" + text.get_text().strip() + "* *](http://www.worldtimebuddy.com/)")
+						text.replace_with("[**" + text.get_text().strip() + "** ](http://www.worldtimebuddy.com/)")
 					else:
 						text.replace_with("**" + text.get_text().strip() + "** ")
 				for text in news.find_all('em'):
