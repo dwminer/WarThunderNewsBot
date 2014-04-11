@@ -15,6 +15,7 @@ from requests import exceptions
 username = "doyouevenliftwaffe"
 useragent = "War Thunder News bot by /u/Harakou"
 subreddit = "warthunder"
+flairID = "51e56bb2-15ba-11e3-8a1a-12313b04c5c2"
 newsRegex = r"http://[www\.]*warthunder\.com/en/news/.+"
 imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
@@ -41,10 +42,12 @@ hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n--
 #Var overrides for testing account/subreddit
 #username = "ponymotebot"
 #subreddit = "harakouscssplayground"
+#reportRecipient = "ponymotebot"
 
 #init
 checked = []
 failed = []
+checkedNews = []
 bot = praw.Reddit(user_agent = useragent)
 bot.login(username)
 subreddit = bot.get_subreddit(subreddit)
@@ -56,63 +59,120 @@ newLineRegex = re.compile(newLineRegex, re.M)
 months = "(" + ")|(".join(months) + ")"
 dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
+#Placeholder for actual post/news item ID logging. So horribly sloppy
+skipOldPosts = (input("Skip existing Reddit posts? ") == "y")
+skipOldNews = (input("Skip existing news? ") == "y")
+if skipOldNews:
+	newsPage = request.urlopen("http://warthunder.com/en/news/")
+	newsPage = BeautifulSoup(newsPage)
+	newsItems = newsPage.find_all(class_="news-item")
+	for newsItem in newsItems:
+		checkedNews.append(hash(newsItem))
+if skipOldPosts:
+	posts = subreddit.get_new(limit = 10)
+	for post in posts:
+		if newsRegex.match(post.url):
+			checked.append(post.id)
+	 
 
-def handleError(postID, errorMessage, err):
-	if postID not in failed:
+def handleError(errorMessage, e, ID=-1):
+	if ID not in failed:
+		if not ID == -1:
+			failed.append(ID)
 		print(errorMessage)
-		failed.append(postID)
-		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage+ "\n\n" + str(err)
+		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage+ "\n\n" + str(e)
 		bot.send_message(reportRecipient, 'Error Report', errorReport) 
 
-#Main loop'
-while True:
+def toRedditMarkdown(bsObj):
+	for image in bsObj.find_all('img'):
+		imgURL = image['src']
+		imgURL = imgURL.replace("(", "\(")
+		imgURL = imgURL.replace(")", "\)")
+		if fullLinkRegex.match(image['src']):
+			image.replace_with("[Image](" + imgURL + ")")
+		else:
+			image.replace_with("[Image](" + "http://warthunder.com" + imgURL + ")") #Converts image tags to Reddit links
+	for link in bsObj.select('a[href]'):
+		if not imageRegex.match(link['href']) or wallpaperRegex.match(link.get_text()):
+			linkURL = link['href']
+			linkURL = linkURL.replace("(", "\(")
+			linkURL = linkURL.replace(")", "\)")
+			link.replace_with("[" + link.get_text() + "](" + linkURL + ")") #Converts HTML href tags to Reddit-style links
+	for embed in bsObj.find_all('iframe'):
+		ytID = re.split(r"\W*", embed['src'])[5]
+		#It would probably be wise to actually make sure the embed link is a youtube link.
+		embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
+	for text in bsObj.find_all('strong'):
+		if dateRegex.match(text.get_text()):
+			text.replace_with("[**" + text.get_text().strip() + "** ](http://www.worldtimebuddy.com/)")
+		else:
+			text.replace_with("**" + text.get_text().strip() + "** ")
+	for text in bsObj.find_all('em'):
+		text.replace_with("*" + text.get_text().strip() + "* ")
+
+	bsObj = bsObj.get_text()
+	bsObj = bsObj.replace("\t", "")
+	bsObj = bsObj.replace("\r", "")
+	bsObj = re.sub(newLineRegex, "\n\n>", bsObj)
+	bsObj = hoverViewStuff + bsObj + "\n\n---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
+	return bsObj
+
+def transcribe(post):
 	try:
-		posts = subreddit.get_new(limit = 10)
-	except exceptions.HTTPError:
-		print("Fetching new posts failed. Is Reddit under heavy load?")
-	for post in posts: #should be ok that this isn't in the try/catch block.
-		if newsRegex.match(post.url) and post.id not in checked:
-			try:
-				page = BeautifulSoup(request.urlopen(post.url))
-				news = page.find('div', class_ = "news-item")
+		page = BeautifulSoup(request.urlopen(post.url))
+		news = page.find('div', class_ = "news-item")
 
-				news.find('table', class_ = "share").decompose()
-				for image in news.find_all('img'):
-					imgURL = image['src']
-					imgURL = imgURL.replace("(", "\(")
-					imgURL = imgURL.replace(")", "\)")
-					if fullLinkRegex.match(image['src']):
-						image.replace_with("[Image](" + imgURL + ")")
-					else:
-						image.replace_with("[Image](" + "http://warthunder.com" + imgURL + ")") #Converts image tags to Reddit links
-				for link in news.select('a[href]'):
-					if not imageRegex.match(link['href']) or wallpaperRegex.match(link.get_text()):
-						linkURL = link['href']
-						linkURL = linkURL.replace("(", "\(")
-						linkURL = linkURL.replace(")", "\)")
-						link.replace_with("[" + link.get_text() + "](" + linkURL + ")") #Converts HTML href tags to Reddit-style links
-				for embed in news.find_all('iframe'):
-					ytID = re.split(r"\W*", embed['src'])[5]
-					#It would probably be wise to actually make sure the embed link is a youtube link.
-					embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
-				for text in news.find_all('strong'):
-					if dateRegex.match(text.get_text()):
-						text.replace_with("[**" + text.get_text().strip() + "** ](http://www.worldtimebuddy.com/)")
-					else:
-						text.replace_with("**" + text.get_text().strip() + "** ")
-				for text in news.find_all('em'):
-					text.replace_with("*" + text.get_text().strip() + "* ")
+		news.find('table', class_ = "share").decompose()
+		news = toRedditMarkdown(news)
+		post.add_comment(news)
+		checked.append(post.id)
+		print("Commented on " + post.url)
+	except error.HTTPError as err:
+		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
+	except praw.errors.APIException as err:
+		handleError("Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err, post.id)
 
-				news = news.get_text()
-				news = news.replace("\t", "")
-				news = news.replace("\r", "")
-				news = re.sub(newLineRegex, "\n\n>", news)
-				news = hoverViewStuff + news + "\n\n---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
-				post.add_comment(news)
-				checked.append(post.id)
-				print("Success for " + post.url)
-			except error.HTTPError as err:
-				handleError(post.id, "Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err)
-			except praw.errors.APIException as err:
-				handleError(post.id, "Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err)
-	time.sleep(120)
+def main():
+	while True:
+		try:
+			newsPage = request.urlopen("http://warthunder.com/en/news/")
+			newsPage = BeautifulSoup(newsPage)
+			newsItems = newsPage.find_all(class_="news-item")
+			for newsItem in newsItems:
+				if hash(newsItem) not in checkedNews:
+					try:
+						print("attempting to submit something")
+						newsLink = newsItem.find('a')
+						newsURL = newsLink['href']
+						if not fullLinkRegex.match(newsURL):
+							newsURL = "http://warthunder.com" + newsURL
+						submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
+						checkedNews.append(hash(newsItem))
+						print("Submitted " + newsURL + " to " + subreddit.display_name)
+						transcribe(submission)
+					except praw.errors.AlreadySubmitted:
+						print(newsURL + " has already been submitted.")
+						checkedNews.append(hash(newsItem))
+					except praw.errors.APIException as err:
+						msg = "Error submitting " + newsURL + ". Is Reddit down?" 
+						handleError(msg, err, hash(newsItem))
+			
+		except error.HTTPError as err:
+			msg = "Failed to fetch news page."
+			handleError(msg, err)
+		
+		try:
+			posts = subreddit.get_new(limit = 10)
+			for post in posts: #why did this throw a timeout exception mutliple times? good question! The world may never know.
+				if newsRegex.match(post.url) and post.id not in checked:
+					transcribe(post)
+		except exceptions.HTTPError:
+			print("Fetching new posts failed. Is Reddit under heavy load?")
+		except TimeoutError as err:
+			handleError("Something timed out.", err)	
+
+		time.sleep(120)
+
+#This is important. It makes the program run.
+main()
+########################
