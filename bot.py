@@ -147,7 +147,7 @@ def main():
 						if not fullLinkRegex.match(newsURL):
 							newsURL = "http://warthunder.com" + newsURL
 						submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
-						submission.select_flair(flair_template_id=flairID)
+						bot.select_flair(item=submission, flair_template_id=flairID)
 						checkedNews.append(hash(newsItem))
 						print("Submitted " + newsURL + " to " + subreddit.display_name)
 						transcribe(submission)
