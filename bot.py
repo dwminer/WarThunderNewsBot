@@ -129,6 +129,8 @@ def transcribe(post):
 		print("Commented on " + post.url)
 	except error.HTTPError as err:
 		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
+	except error.URLError as err:
+		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
 	except praw.errors.APIException as err:
 		handleError("Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err, post.id)
 
