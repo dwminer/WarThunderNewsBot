@@ -40,8 +40,8 @@ hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n--
 #End config variables
 
 #Var overrides for testing account/subreddit
-#username = "ponymotebot"
-#subreddit = "harakouscssplayground"
+username = "ponymotebot"
+subreddit = "harakouscssplayground"
 #reportRecipient = "ponymotebot"
 
 #init
@@ -67,7 +67,10 @@ if skipOldNews:
 	newsPage = BeautifulSoup(newsPage)
 	newsItems = newsPage.find_all(class_="news-item")
 	for newsItem in newsItems:
-		checkedNews.append(hash(newsItem))
+		newsLink = newsItem.find('a')
+		newsURL = newsLink['href']
+		newsID = newsURL.split('/')[3].split('-')[0]
+		checkedNews.append(newsID)
 if skipOldPosts:
 	posts = subreddit.get_new(limit = 10)
 	for post in posts:
@@ -92,6 +95,7 @@ def toRedditMarkdown(bsObj):
 			image.replace_with("[Image](" + imgURL + ")")
 		else:
 			image.replace_with("[Image](" + "http://warthunder.com" + imgURL + ")") #Converts image tags to Reddit links
+	#add ul handling here
 	for link in bsObj.select('a[href]'):
 		if not imageRegex.match(link['href']) or wallpaperRegex.match(link.get_text()):
 			linkURL = link['href']
@@ -141,24 +145,25 @@ def main():
 			newsPage = BeautifulSoup(newsPage)
 			newsItems = newsPage.find_all(class_="news-item")
 			for newsItem in newsItems:
-				if hash(newsItem) not in checkedNews:
+				newsLink = newsItem.find('a')
+				newsURL = newsLink['href']
+				newsID = newsURL.split('/')[3].split('-')[0]
+				if newsID not in checkedNews:
 					try:
 						print("attempting to submit something")
-						newsLink = newsItem.find('a')
-						newsURL = newsLink['href']
 						if not fullLinkRegex.match(newsURL):
 							newsURL = "http://warthunder.com" + newsURL
 						submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
 						bot.select_flair(item=submission, flair_template_id=flairID)
-						checkedNews.append(hash(newsItem))
+						checkedNews.append(newsID)
 						print("Submitted " + newsURL + " to " + subreddit.display_name)
 						transcribe(submission)
 					except praw.errors.AlreadySubmitted:
 						print(newsURL + " has already been submitted.")
-						checkedNews.append(hash(newsItem))
+						checkedNews.append(newsID)
 					except praw.errors.APIException as err:
 						msg = "Error submitting " + newsURL + ". Is Reddit down?" 
-						handleError(msg, err, hash(newsItem))
+						handleError(msg, err, newsID)
 			
 		except error.HTTPError as err:
 			msg = "Failed to fetch news page."
