@@ -10,6 +10,7 @@ import praw, time, re
 from urllib import request, error
 from bs4 import BeautifulSoup
 from requests import exceptions
+import socket
 
 #Begin config variables
 username = "doyouevenliftwaffe"
@@ -40,8 +41,8 @@ hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n--
 #End config variables
 
 #Var overrides for testing account/subreddit
-username = "ponymotebot"
-subreddit = "harakouscssplayground"
+#username = "ponymotebot"
+#subreddit = "harakouscssplayground"
 #reportRecipient = "ponymotebot"
 
 #init
@@ -135,6 +136,9 @@ def transcribe(post):
 		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
 	except error.URLError as err:
 		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
+	except socket.error as err:
+		msg = "Failed to fetch news page."
+		handleError(msg, err)
 	except praw.errors.APIException as err:
 		handleError("Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err, post.id)
 
@@ -165,7 +169,10 @@ def main():
 						msg = "Error submitting " + newsURL + ". Is Reddit down?" 
 						handleError(msg, err, newsID)
 			
-		except error.HTTPError as err:
+		except error.URLError as err:
+			msg = "Failed to fetch news page."
+			handleError(msg, err)
+		except socket.error as err:
 			msg = "Failed to fetch news page."
 			handleError(msg, err)
 		
