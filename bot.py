@@ -11,6 +11,7 @@ from urllib import request, error
 from bs4 import BeautifulSoup
 from requests import exceptions
 import socket
+import traceback
 
 #Begin config variables
 username = "doyouevenliftwaffe"
@@ -189,5 +190,8 @@ def main():
 		time.sleep(120)
 
 #This is important. It makes the program run.
-main()
+try:
+	main()
+except Exception as err:
+	handleError("Something unexpected went wrong. " + traceback.format_exc(), err)
 ########################
