@@ -10,6 +10,7 @@ import praw, time, re
 from urllib import request, error
 from bs4 import BeautifulSoup
 from requests import exceptions
+from http.client import HTTPException
 import socket
 import traceback
 
@@ -133,8 +134,6 @@ def transcribe(post):
 		post.add_comment(news)
 		checked.append(post.id)
 		print("Commented on " + post.url)
-	except error.HTTPError as err:
-		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
 	except error.URLError as err:
 		handleError("Failed to fetch " + post.url + ", Reddit submission " + post.short_link, err, post.id)
 	except socket.error as err:
@@ -174,6 +173,9 @@ def main():
 			msg = "Failed to fetch news page."
 			handleError(msg, err)
 		except socket.error as err:
+			msg = "Failed to fetch news page."
+			handleError(msg, err)
+		except HTTPException as err:
 			msg = "Failed to fetch news page."
 			handleError(msg, err)
 		
