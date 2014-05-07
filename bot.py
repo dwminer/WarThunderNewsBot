@@ -23,6 +23,7 @@ newsRegex = r"http://[www\.]*warthunder\.com/en/news/.+"
 imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
 newLineRegex = r"\n+"
+updateRegex = r"Update [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"
 reportRecipient = 'Harakou' #Username to which error reports should be sent
 wallpaperRegex = r"[0-9]+x[0-9]+"
 day = r"[0-9]{1,2}(st|nd|rd|th)"
@@ -59,6 +60,7 @@ imageRegex = re.compile(imageRegex)
 fullLinkRegex = re.compile(fullLinkRegex)
 wallpaperRegex = re.compile(wallpaperRegex)
 newLineRegex = re.compile(newLineRegex, re.M)
+updateRegex = re.compile(updateRegex)
 months = "(" + ")|(".join(months) + ")"
 dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
@@ -150,24 +152,25 @@ def main():
 			newsItems = newsPage.find_all(class_="news-item")
 			for newsItem in newsItems:
 				newsLink = newsItem.find('a')
-				newsURL = newsLink['href']
-				newsID = newsURL.split('/')[3].split('-')[0]
-				if newsID not in checkedNews:
-					try:
-						print("attempting to submit something")
-						if not fullLinkRegex.match(newsURL):
-							newsURL = "http://warthunder.com" + newsURL
-						submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
-						bot.select_flair(item=submission, flair_template_id=flairID)
-						checkedNews.append(newsID)
-						print("Submitted " + newsURL + " to " + subreddit.display_name)
-						transcribe(submission)
-					except praw.errors.AlreadySubmitted:
-						print(newsURL + " has already been submitted.")
-						checkedNews.append(newsID)
-					except praw.errors.APIException as err:
-						msg = "Error submitting " + newsURL + ". Is Reddit down?" 
-						handleError(msg, err, newsID)
+				if not updateRegex.match(newsLink.get_text()): #dealing with bug where "phantom" news links appeared that 404
+					newsURL = newsLink['href']
+					newsID = newsURL.split('/')[3].split('-')[0]
+					if newsID not in checkedNews:
+						try:
+							print("attempting to submit something")
+							if not fullLinkRegex.match(newsURL):
+								newsURL = "http://warthunder.com" + newsURL
+							submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
+							bot.select_flair(item=submission, flair_template_id=flairID)
+							checkedNews.append(newsID)
+							print("Submitted " + newsURL + " to " + subreddit.display_name)
+							transcribe(submission)
+						except praw.errors.AlreadySubmitted:
+							print(newsURL + " has already been submitted.")
+							checkedNews.append(newsID)
+						except praw.errors.APIException as err:
+							msg = "Error submitting " + newsURL + ". Is Reddit down?" 
+							handleError(msg, err, newsID)
 			
 		except error.URLError as err:
 			msg = "Failed to fetch news page."
