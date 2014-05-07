@@ -108,7 +108,7 @@ def toRedditMarkdown(bsObj):
 			linkURL = linkURL.replace(")", "\)")
 			link.replace_with("[" + link.get_text() + "](" + linkURL + ")") #Converts HTML href tags to Reddit-style links
 	for embed in bsObj.find_all('iframe'):
-		ytID = re.split(r"\W*", embed['src'])[5]
+		ytID = re.split(r"/", embed['src'])[4]
 		#It would probably be wise to actually make sure the embed link is a youtube link.
 		embed.replace_with("[Embed](http://www.youtube.com/watch?v=" + ytID + ")")
 	for text in bsObj.find_all('strong'):
