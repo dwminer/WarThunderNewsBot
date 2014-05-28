@@ -18,12 +18,14 @@ import traceback
 username = "doyouevenliftwaffe"
 useragent = "War Thunder News bot by /u/Harakou"
 subreddit = "warthunder"
-flairID = "51e56bb2-15ba-11e3-8a1a-12313b04c5c2"
+newsFlairID = "51e56bb2-15ba-11e3-8a1a-12313b04c5c2"
+histFlairID = "173a5236-c982-11e2-a2c3-12313d17f99e"
 newsRegex = r"http://[www\.]*warthunder\.com/en/news/.+"
 imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
 newLineRegex = r"\n+"
 updateRegex = r"Update [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"
+tagRegex = r"\[.*\]"
 reportRecipient = 'Harakou' #Username to which error reports should be sent
 wallpaperRegex = r"[0-9]+x[0-9]+"
 day = r"[0-9]{1,2}(st|nd|rd|th)"
@@ -46,7 +48,6 @@ hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n--
 #Var overrides for testing account/subreddit
 #username = "ponymotebot"
 #subreddit = "harakouscssplayground"
-#reportRecipient = "ponymotebot"
 
 #init
 checked = []
@@ -61,6 +62,7 @@ fullLinkRegex = re.compile(fullLinkRegex)
 wallpaperRegex = re.compile(wallpaperRegex)
 newLineRegex = re.compile(newLineRegex, re.M)
 updateRegex = re.compile(updateRegex)
+tagRegex = re.compile(tagRegex)
 months = "(" + ")|(".join(months) + ")"
 dateRegex = re.compile("(.*(" + months + ").*" + day + ")|(.*" + day + ".*(" + months + ".*))")
 
@@ -160,8 +162,16 @@ def main():
 							print("attempting to submit something")
 							if not fullLinkRegex.match(newsURL):
 								newsURL = "http://warthunder.com" + newsURL
-							submission = subreddit.submit(title=newsLink.get_text(), url=newsURL)
-							bot.select_flair(item=submission, flair_template_id=flairID)
+							subTitle = newsLink.get_text()
+							tag = tagRegex.match(subTitle) 
+							flair = newsFlairID
+							if tag:
+								if subTitle[tag.span()[0]:tag.span()[1]] in ["[Historical]", "[Commemoration]"]:
+									subTitle = subTitle[tag.end():subTitle.__len__()]
+									flair = histFlairID
+									
+							submission = subreddit.submit(title=subTitle, url=newsURL)
+							bot.select_flair(item=submission, flair_template_id=flair)
 							checkedNews.append(newsID)
 							print("Submitted " + newsURL + " to " + subreddit.display_name)
 							transcribe(submission)
