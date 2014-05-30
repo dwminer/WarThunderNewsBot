@@ -20,6 +20,7 @@ useragent = "War Thunder News bot by /u/Harakou"
 subreddit = "warthunder"
 newsFlairID = "51e56bb2-15ba-11e3-8a1a-12313b04c5c2"
 histFlairID = "173a5236-c982-11e2-a2c3-12313d17f99e"
+specialFlairID = "154c23ca-9b21-11e3-9eea-12313d27e9a3"
 newsRegex = r"http://[www\.]*warthunder\.com/en/news/.+"
 imageRegex = r".*/upload/image/.*"
 fullLinkRegex = r"http://.+"
@@ -169,6 +170,9 @@ def main():
 								if subTitle[tag.span()[0]:tag.span()[1]] in ["[Historical]", "[Commemoration]"]:
 									subTitle = subTitle[tag.end():subTitle.__len__()]
 									flair = histFlairID
+								if subTitle[tag.span()[0]:tag.span()[1]] == "[Special]":
+									subTitle = subTitle[tag.end():subTitle.__len__()]
+									flair = specialFlairID 
 									
 							submission = subreddit.submit(title=subTitle, url=newsURL)
 							bot.select_flair(item=submission, flair_template_id=flair)
