@@ -43,7 +43,7 @@ months = [
 	"October",
 	"November",
 	"December"]
-hoverViewStuff = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n---"
+expandoMarkup = "#####&#009;\n\n######&#009;\n\n#####&#009;\n\nNews Post:\n\n---"
 #End config variables
 
 #Var overrides for testing account/subreddit
@@ -126,7 +126,7 @@ def toRedditMarkdown(bsObj):
 	bsObj = bsObj.replace("\t", "")
 	bsObj = bsObj.replace("\r", "")
 	bsObj = re.sub(newLineRegex, "\n\n>", bsObj)
-	bsObj = hoverViewStuff + bsObj + "\n\n---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
+	bsObj = expandoMarkup + bsObj + "\n\n---\n\n^(This is a bot. | )[^(Suggestions? Problems?)](http://www.reddit.com/message/compose/?to=Harakou)^( | )[^(This project on Github)](https://github.com/Harakou/WarThunderNewsBot/)"
 	return bsObj
 
 def transcribe(post):
