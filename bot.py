@@ -146,6 +146,8 @@ def transcribe(post):
 		handleError(msg, err)
 	except praw.errors.APIException as err:
 		handleError("Reddit API error posting comment for " +  post.url + ", Reddit sumbmission " + post.short_link, err, post.id)
+	except AttributeError as err:
+		handleError("Attribute error garbage", err, post.id)
 
 def main():
 	while True:
