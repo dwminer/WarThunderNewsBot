@@ -92,7 +92,7 @@ def handleError(errorMessage, e, ID=-1):
 			failed.append(ID)
 		print(errorMessage)
 		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage+ "\n\n" + str(e)
-		bot.send_message(reportRecipient, 'Error Report', errorReport) 
+#		bot.send_message(reportRecipient, 'Error Report', errorReport) 
 
 def toRedditMarkdown(bsObj):
 	for image in bsObj.find_all('img'):
