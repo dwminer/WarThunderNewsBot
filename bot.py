@@ -92,7 +92,7 @@ def handleError(errorMessage, e, ID=-1):
 			failed.append(ID)
 		print(errorMessage)
 		errorReport = "[](/paperbagderpy \"I just don't know what went wrong!\")" + errorMessage+ "\n\n" + str(e)
-#		bot.send_message(reportRecipient, 'Error Report', errorReport) 
+		bot.send_message(reportRecipient, 'Error Report', errorReport) 
 
 def toRedditMarkdown(bsObj):
 	for image in bsObj.find_all('img'):
@@ -133,8 +133,12 @@ def transcribe(post):
 	try:
 		page = BeautifulSoup(request.urlopen(post.url))
 		news = page.find('div', class_ = "news-item")
-
-		news.find('table', class_ = "share").decompose()
+		
+		try:
+			news.find('div', class_ = "social-likes").decompose()
+			news.find('img', class_ = "sbImgLj").decompose()
+		except AttributeError as err:
+			handleError("Share class not found", err)
 		news = toRedditMarkdown(news)
 		post.add_comment(news)
 		checked.append(post.id)
